@@ -44,11 +44,8 @@ This project is for **educational and research purposes only**.
 
 By using this software, you agree to use it solely for learning purposes.
 
-## Table of Contents
-- [How to Install](#how-to-install)
-- [How to Run](#how-to-run)
-  - [⌨️ Command Line Interface](#️-command-line-interface)
-  - [🖥️ Web Application](#️-web-application)
-- [How to Contribute](#how-to-contribute)
-- [Feature Requests](#feature-requests)
-- [License](#licens
+## Setup
+
+See the original repository ([virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund)) for full setup instructions.
+
+> **My default tickers for quick testing:** AAPL, MSFT, GOOGL — I find these well-covered stocks useful for sanity-checking agent outputs since there's plenty of public data to compare against.
