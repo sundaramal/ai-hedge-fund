@@ -49,8 +49,8 @@ Examples:
     parser.add_argument(
         "--initial-capital",
         type=float,
-        default=100_000.0,
-        help="Initial capital in USD for the portfolio (default: 100000)",
+        default=10_000.0,  # Lowered from 100k to 10k to better reflect my paper trading budget
+        help="Initial capital in USD for the portfolio (default: 10000)",
     )
     parser.add_argument(
         "--show-reasoning",
@@ -61,9 +61,9 @@ Examples:
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o",
+        default="gpt-4o-mini",  # Switched default to mini to save on API costs
         choices=["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "claude-3-5-sonnet-20241022"],
-        help="LLM model to use for agent reasoning (default: gpt-4o)",
+        help="LLM model to use for agent reasoning (default: gpt-4o-mini)",
     )
 
     return parser.parse_args()
@@ -94,31 +94,4 @@ def main() -> None:
         end_date = datetime.today().strftime("%Y-%m-%d")
     if start_date is None:
         from dateutil.relativedelta import relativedelta
-        start_date = (datetime.today() - relativedelta(months=3)).strftime("%Y-%m-%d")
-
-    print(f"\n{'='*60}")
-    print(f"  AI Hedge Fund Analysis")
-    print(f"{'='*60}")
-    print(f"  Ticker:          {args.ticker.upper()}")
-    print(f"  Date Range:      {start_date} to {end_date}")
-    print(f"  Initial Capital: ${args.initial_capital:,.2f}")
-    print(f"  Model:           {args.model}")
-    print(f"  Show Reasoning:  {args.show_reasoning}")
-    print(f"{'='*60}\n")
-
-    # TODO: Initialize and run the hedge fund workflow
-    # from src.agents.orchestrator import run_hedge_fund
-    # result = run_hedge_fund(
-    #     ticker=args.ticker.upper(),
-    #     start_date=start_date,
-    #     end_date=end_date,
-    #     initial_capital=args.initial_capital,
-    #     show_reasoning=args.show_reasoning,
-    #     model_name=args.model,
-    # )
-    print("Hedge fund workflow initializing...")
-    print("[INFO] Core agent modules are being set up.")
-
-
-if __name__ == "__main__":
-    main()
+        start_date = (datetime.today() - relativedelta(months=3)).strftime("%Y-%m-%
