@@ -28,7 +28,7 @@ This system employs several agents working together:
 
 Note: the system does not actually make any trades.
 
-> **Personal note:** I'm using this project to study how different investing philosophies can be modeled as AI agents. My main interest is comparing the value-oriented agents (Graham, Munger, Buffett) against the growth-oriented ones (Cathie Wood, Phil Fisher) across different market conditions.
+> **Personal note:** I'm using this project to study how different investing philosophies can be modeled as AI agents. My main interest is comparing the value-oriented agents (Graham, Munger, Buffett) against the growth-oriented ones (Cathie Wood, Phil Fisher) across different market conditions. I'm particularly curious about how the Nassim Taleb agent behaves during high-volatility periods compared to the others.
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt)
 
@@ -42,10 +42,4 @@ This project is for **educational and research purposes only**.
 - Consult a financial advisor for investment decisions
 - Past performance does not indicate future results
 
-By using this software, you agree to use it solely for learning purposes.
-
-## Setup
-
-See the original repository ([virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund)) for full setup instructions.
-
-> **My default tickers for quick testing:** AAPL, MSFT, GOOGL — I find these well-covered stocks useful for sanity-checking agent outputs since there's plenty of public data to compare against.
+By using this software, you agree to use it solely for learning pur
