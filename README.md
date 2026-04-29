@@ -32,6 +32,15 @@ Note: the system does not actually make any trades.
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt)
 
+## Getting Started
+
+See the original repo for full setup instructions. For my own reference, the quickest way to run a backtest:
+
+```bash
+# Example: run a backtest on AAPL from 2024-01-01 to 2024-06-30
+python src/backtester.py --ticker AAPL --start-date 2024-01-01 --end-date 2024-06-30
+```
+
 ## Disclaimer
 
 This project is for **educational and research purposes only**.
@@ -40,6 +49,3 @@ This project is for **educational and research purposes only**.
 - No investment advice or guarantees provided
 - Creator assumes no liability for financial losses
 - Consult a financial advisor for investment decisions
-- Past performance does not indicate future results
-
-By using this software, you agree to use it solely for learning pur
