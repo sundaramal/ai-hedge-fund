@@ -66,7 +66,7 @@ The API will be available at:
 - API Endpoint: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 
-> **Personal note:** I also find it useful to run with `--port 8080` if port 8000 is already in use by another service (e.g. another local dev server).
+> **Personal note:** I also find it useful to run with `--port 8080` if port 8000 is already in use by another service (e.g. another local dev server). On macOS, port 5000 is sometimes taken by AirPlay Receiver, so 8080 is my go-to alternative.
 
 ## API Endpoints
 
@@ -94,9 +94,4 @@ app/backend/
 
 ## Disclaimer
 
-This project is for **educational and research purposes only**.
-
-- Not intended for real trading or investment
-- No warranties or guarantees provided
-- Creator assumes no liability for financial losses
-- Cons
+This project is for **educational and research purposes
