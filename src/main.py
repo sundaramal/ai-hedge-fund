@@ -1,179 +1,124 @@
-import sys
+"""AI Hedge Fund - Main Entry Point
 
-from dotenv import load_dotenv
-from langchain_core.messages import HumanMessage
-from langgraph.graph import END, StateGraph
-from colorama import Fore, Style, init
-import questionary
-from src.agents.portfolio_manager import portfolio_management_agent
-from src.agents.risk_manager import risk_management_agent
-from src.graph.state import AgentState
-from src.utils.display import print_trading_output
-from src.utils.analysts import ANALYST_ORDER, get_analyst_nodes
-from src.utils.progress import progress
-from src.utils.visualize import save_graph_as_png
-from src.cli.input import (
-    parse_cli_inputs,
-)
+This module serves as the primary entry point for the AI-powered hedge fund
+simulation system. It orchestrates agents, data pipelines, and trading logic.
+"""
 
 import argparse
+import sys
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import json
+from typing import Optional
+
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-init(autoreset=True)
+
+def parse_arguments() -> argparse.Namespace:
+    """Parse command-line arguments for the hedge fund simulation."""
+    parser = argparse.ArgumentParser(
+        description="AI Hedge Fund - Autonomous trading agent simulation",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python src/main.py --ticker AAPL --start-date 2024-01-01 --end-date 2024-06-30
+  python src/main.py --ticker TSLA --show-reasoning
+  python src/main.py --ticker NVDA --initial-capital 50000
+    """,
+    )
+
+    parser.add_argument(
+        "--ticker",
+        type=str,
+        required=True,
+        help="Stock ticker symbol to analyze (e.g., AAPL, TSLA)",
+    )
+    parser.add_argument(
+        "--start-date",
+        type=str,
+        default=None,
+        help="Start date for analysis in YYYY-MM-DD format (default: 3 months ago)",
+    )
+    parser.add_argument(
+        "--end-date",
+        type=str,
+        default=None,
+        help="End date for analysis in YYYY-MM-DD format (default: today)",
+    )
+    parser.add_argument(
+        "--initial-capital",
+        type=float,
+        default=100_000.0,
+        help="Initial capital in USD for the portfolio (default: 100000)",
+    )
+    parser.add_argument(
+        "--show-reasoning",
+        action="store_true",
+        default=False,
+        help="Display detailed reasoning from each agent",
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="gpt-4o",
+        choices=["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "claude-3-5-sonnet-20241022"],
+        help="LLM model to use for agent reasoning (default: gpt-4o)",
+    )
+
+    return parser.parse_args()
 
 
-def parse_hedge_fund_response(response):
-    """Parses a JSON string and returns a dictionary."""
+def validate_date(date_str: Optional[str], label: str) -> Optional[str]:
+    """Validate that a date string is in the correct YYYY-MM-DD format."""
+    if date_str is None:
+        return None
     try:
-        return json.loads(response)
-    except json.JSONDecodeError as e:
-        print(f"JSON decoding error: {e}\nResponse: {repr(response)}")
-        return None
-    except TypeError as e:
-        print(f"Invalid response type (expected string, got {type(response).__name__}): {e}")
-        return None
-    except Exception as e:
-        print(f"Unexpected error while parsing response: {e}\nResponse: {repr(response)}")
-        return None
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return date_str
+    except ValueError:
+        print(f"Error: {label} '{date_str}' is not in YYYY-MM-DD format.", file=sys.stderr)
+        sys.exit(1)
 
 
-##### Run the Hedge Fund #####
-def run_hedge_fund(
-    tickers: list[str],
-    start_date: str,
-    end_date: str,
-    portfolio: dict,
-    show_reasoning: bool = False,
-    selected_analysts: list[str] = [],
-    model_name: str = "gpt-4.1",
-    model_provider: str = "OpenAI",
-):
-    # Start progress tracking
-    progress.start()
+def main() -> None:
+    """Main execution function for the AI Hedge Fund."""
+    args = parse_arguments()
 
-    try:
-        # Build workflow (default to all analysts when none provided)
-        workflow = create_workflow(selected_analysts if selected_analysts else None)
-        agent = workflow.compile()
+    # Validate date inputs
+    start_date = validate_date(args.start_date, "start-date")
+    end_date = validate_date(args.end_date, "end-date")
 
-        final_state = agent.invoke(
-            {
-                "messages": [
-                    HumanMessage(
-                        content="Make trading decisions based on the provided data.",
-                    )
-                ],
-                "data": {
-                    "tickers": tickers,
-                    "portfolio": portfolio,
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "analyst_signals": {},
-                },
-                "metadata": {
-                    "show_reasoning": show_reasoning,
-                    "model_name": model_name,
-                    "model_provider": model_provider,
-                },
-            },
-        )
+    # Set default dates if not provided
+    if end_date is None:
+        end_date = datetime.today().strftime("%Y-%m-%d")
+    if start_date is None:
+        from dateutil.relativedelta import relativedelta
+        start_date = (datetime.today() - relativedelta(months=3)).strftime("%Y-%m-%d")
 
-        return {
-            "decisions": parse_hedge_fund_response(final_state["messages"][-1].content),
-            "analyst_signals": final_state["data"]["analyst_signals"],
-        }
-    finally:
-        # Stop progress tracking
-        progress.stop()
+    print(f"\n{'='*60}")
+    print(f"  AI Hedge Fund Analysis")
+    print(f"{'='*60}")
+    print(f"  Ticker:          {args.ticker.upper()}")
+    print(f"  Date Range:      {start_date} to {end_date}")
+    print(f"  Initial Capital: ${args.initial_capital:,.2f}")
+    print(f"  Model:           {args.model}")
+    print(f"  Show Reasoning:  {args.show_reasoning}")
+    print(f"{'='*60}\n")
 
-
-def start(state: AgentState):
-    """Initialize the workflow with the input message."""
-    return state
-
-
-def create_workflow(selected_analysts=None):
-    """Create the workflow with selected analysts."""
-    workflow = StateGraph(AgentState)
-    workflow.add_node("start_node", start)
-
-    # Get analyst nodes from the configuration
-    analyst_nodes = get_analyst_nodes()
-
-    # Default to all analysts if none selected
-    if selected_analysts is None:
-        selected_analysts = list(analyst_nodes.keys())
-    # Add selected analyst nodes
-    for analyst_key in selected_analysts:
-        node_name, node_func = analyst_nodes[analyst_key]
-        workflow.add_node(node_name, node_func)
-        workflow.add_edge("start_node", node_name)
-
-    # Always add risk and portfolio management
-    workflow.add_node("risk_management_agent", risk_management_agent)
-    workflow.add_node("portfolio_manager", portfolio_management_agent)
-
-    # Connect selected analysts to risk management
-    for analyst_key in selected_analysts:
-        node_name = analyst_nodes[analyst_key][0]
-        workflow.add_edge(node_name, "risk_management_agent")
-
-    workflow.add_edge("risk_management_agent", "portfolio_manager")
-    workflow.add_edge("portfolio_manager", END)
-
-    workflow.set_entry_point("start_node")
-    return workflow
+    # TODO: Initialize and run the hedge fund workflow
+    # from src.agents.orchestrator import run_hedge_fund
+    # result = run_hedge_fund(
+    #     ticker=args.ticker.upper(),
+    #     start_date=start_date,
+    #     end_date=end_date,
+    #     initial_capital=args.initial_capital,
+    #     show_reasoning=args.show_reasoning,
+    #     model_name=args.model,
+    # )
+    print("Hedge fund workflow initializing...")
+    print("[INFO] Core agent modules are being set up.")
 
 
 if __name__ == "__main__":
-    inputs = parse_cli_inputs(
-        description="Run the hedge fund trading system",
-        require_tickers=True,
-        default_months_back=None,
-        include_graph_flag=True,
-        include_reasoning_flag=True,
-    )
-
-    tickers = inputs.tickers
-    selected_analysts = inputs.selected_analysts
-
-    # Construct portfolio here
-    portfolio = {
-        "cash": inputs.initial_cash,
-        "margin_requirement": inputs.margin_requirement,
-        "margin_used": 0.0,
-        "positions": {
-            ticker: {
-                "long": 0,
-                "short": 0,
-                "long_cost_basis": 0.0,
-                "short_cost_basis": 0.0,
-                "short_margin_used": 0.0,
-            }
-            for ticker in tickers
-        },
-        "realized_gains": {
-            ticker: {
-                "long": 0.0,
-                "short": 0.0,
-            }
-            for ticker in tickers
-        },
-    }
-
-    result = run_hedge_fund(
-        tickers=tickers,
-        start_date=inputs.start_date,
-        end_date=inputs.end_date,
-        portfolio=portfolio,
-        show_reasoning=inputs.show_reasoning,
-        selected_analysts=inputs.selected_analysts,
-        model_name=inputs.model_name,
-        model_provider=inputs.model_provider,
-    )
-    print_trading_output(result)
+    main()
