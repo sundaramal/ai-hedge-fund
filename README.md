@@ -39,13 +39,15 @@ See the original repo for full setup instructions. For my own reference, the qui
 ```bash
 # Example: run a backtest on AAPL from 2024-01-01 to 2024-06-30
 python src/backtester.py --ticker AAPL --start-date 2024-01-01 --end-date 2024-06-30
+
+# Example: run a backtest comparing multiple tickers
+python src/backtester.py --ticker MSFT --start-date 2023-01-01 --end-date 2023-12-31
 ```
 
-## Disclaimer
+## Agents I Find Most Interesting
 
-This project is for **educational and research purposes only**.
+For my own study, here's a quick ranking of which agents I'm focusing on first:
 
-- Not intended for real trading or investment
-- No investment advice or guarantees provided
-- Creator assumes no liability for financial losses
-- Consult a financial advisor for investment decisions
+1. **Nassim Taleb** – want to see how tail-risk logic translates to signals
+2. **Ben Graham** – classic margin-of-safety math is well-defined, good baseline
+3. **Cathie Wood** – curious how "innovation" is quantified without pure narrative
