@@ -92,6 +92,8 @@ app/backend/
 └── main.py                   # FastAPI application entry point
 ```
 
-## Disclaimer
+## Troubleshooting
 
-This project is for **educational and research purposes
+- **Port already in use:** Use `--port 8080` (or any free port) when starting uvicorn.
+- **Missing API keys:** Make sure your `.env` file is in the root directory, not inside `app/backend/`.
+- **Poetry not found after install:** Restart your shell or run `source ~/.bashrc` / `source ~/.zshrc` to pick up the updated PATH.
