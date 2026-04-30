@@ -104,8 +104,8 @@ OPENAI_API_KEY=your-openai-api-key
 # For running LLMs hosted by groq (deepseek, llama3, etc.)
 GROQ_API_KEY=your-groq-api-key
 
-# For getting financial data (required)
+# For getting financial data (required for stock analysis)
 FINANCIAL_DATASETS_API_KEY=your-financial-datasets-api-key
 ```
 
-> **Note (personal):** I've found that setting up `FINANCIAL_DATASETS_API_KEY` first is the most important step — the app won't return meaningful data without it.
+> **Note (personal):** I've found that setting up the `.env` file before running any scripts saves a lot of back-and-forth. The app won't crash without keys, but most agents will silently fail or return empty results.
