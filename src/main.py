@@ -6,7 +6,7 @@ simulation system. It orchestrates agents, data pipelines, and trading logic.
 
 import argparse
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -65,6 +65,12 @@ Examples:
         choices=["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "claude-3-5-sonnet-20241022"],
         help="LLM model to use for agent reasoning (default: gpt-4o-mini)",
     )
+    parser.add_argument(
+        "--lookback-days",
+        type=int,
+        default=90,  # Default lookback window; I find 90 days gives a good balance of signal vs noise
+        help="Number of days to look back when start-date is not specified (default: 90)",
+    )
 
     return parser.parse_args()
 
@@ -93,5 +99,4 @@ def main() -> None:
     if end_date is None:
         end_date = datetime.today().strftime("%Y-%m-%d")
     if start_date is None:
-        from dateutil.relativedelta import relativedelta
-        start_date = (datetime.today() - relativedelta(months=3)).strftime("%Y-%m-%
+        start_date = (datetime.today() - timedelta(days=args.lookback_days)).strftime("%Y-%m-%d")
